@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{# Ligne 4 : Définition UNIQUE du bloc title avec les noms corrects (firstName et lastName) #}
+{% block title %}Mes Notes - {{ student.firstName }} {{ student.lastName }}{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">📋 Mes Notes et Moyennes</h1>
+
+    {% if grouped_grades is empty %}
+        <div class="alert alert-info">
+            Aucune note n'est actuellement disponible ou publiée pour vous.
+        </div>
+    {% else %}
+
+        {# Première boucle : Itération sur chaque Matière regroupée #}
+        {% for subject_data in grouped_grades %}
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        {{ subject_data.name }}
+                        <span class="float-end badge bg-light text-dark">
+                            Moyenne :
+                            {# Affichage de la moyenne arrondie à 2 décimales #}
+                            <strong>{{ subject_data.average|number_format(2, ',', ' ') }} / 20</strong>
+                        </span>
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                        <tr>
+                            <th>Évaluation</th>
+                            <th>Note</th>
+                            <th>Barème</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {# Deuxième boucle (imbriquée) : Lister les notes individuelles de cette Matière #}
+                        {% for grade in subject_data.notes %}
+                            <tr>
+                                <td>{{ grade.evaluation.label }}</td>
+
+                                <td>
+                                    {# getGrade() retourne la valeur de la note #}
+                                    <strong>{{ grade.grade|number_format(2, ',', ' ') }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ grade.evaluation.bareme }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+{% endblock %}

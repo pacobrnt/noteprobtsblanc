@@ -1,26 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Student{% endblock %}
+{% block title %}Mes Notes - {{ student.firstName }} {{ student.lastName }}{% endblock %}
 
 {% block body %}
-    <h1>Notes de {{ app.user.name }}</h1>
+    <h1>Notes de {{ student.firstName }} {{ student.lastName }}</h1>
 
     <table class="table">
         <thead>
         <tr>
-            <th scope="col">Evaluation</th>
+            <th scope="col">Matière</th>
+            <th scope="col">Évaluation</th>
             <th scope="col">Note</th>
             <th scope="col">Barème</th>
+            <th scope="col">Moyenne Matière</th>
         </tr>
         </thead>
         <tbody>
-        {% for gr in student.grades %}
-        <tr>
-            <td>{{ gr.evaluation.label }}</td>
-            <td>{{ gr.grade }}</td>
-            <td>{{ gr.evaluation.bareme }}</td>
-        </tr>
-        {% endfor %}
+
+        {% if grouped_grades is empty %}
+            <tr><td colspan="5">Aucune note disponible.</td></tr>
+        {% else %}
+            {% for subject_data in grouped_grades %}
+                {% for grade in subject_data.notes %}
+                    <tr>
+                        {# Afficher le nom de la matière seulement sur la première ligne de chaque matière #}
+                        {% if loop.index == 1 %}
+                            <td rowspan="{{ subject_data.notes|length }}">{{ subject_data.name }}</td>
+                        {% endif %}
+
+                        <td>{{ grade.evaluation.label }}</td>
+                        <td>{{ grade.grade|number_format(2, ',', ' ') }}</td>
+                        <td>{{ grade.evaluation.bareme }}</td>
+
+                        {# Afficher la moyenne de la matière sur la première ligne #}
+                        {% if loop.index == 1 %}
+                            <td rowspan="{{ subject_data.notes|length }}">
+                                <strong>{{ subject_data.average|number_format(2, ',', ' ') }} / 20</strong>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
         </tbody>
     </table>
 

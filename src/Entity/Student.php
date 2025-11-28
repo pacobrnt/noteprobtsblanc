@@ -74,4 +74,52 @@ class Student extends User
         }
         return null;
     }
+
+    /**
+     * Réalise l'agrégation et le calcul de la moyenne par matière.
+     * ATTENTION : Ceci est un contournement pour l'épreuve. Cette logique devrait être dans un Service/Repository.
+     * @return array Tableau des notes regroupées par matière.
+     */
+    public function getGroupedGradesWithAverages(): array
+    {
+        $groupedGrades = [];
+
+        // Le getGrades() est la collection récupérée par Doctrine
+        foreach ($this->grades as $grade) {
+            // Assurez-vous que les relations sont chargées (Eager Fetching ou jointure préalable)
+            $evaluation = $grade->getEvaluation();
+            $subject = $evaluation->getSubject();
+
+            $subjectId = $subject->getId();
+            $gradeValue = $grade->getGrade();
+
+            // Sécurisation du calcul
+            $gradeNumeric = (float) $gradeValue;
+
+            if (!isset($groupedGrades[$subjectId])) {
+                $groupedGrades[$subjectId] = [
+                    'name' => $subject->getLabel(),
+                    'totalSum' => 0,
+                    'count' => 0,
+                    'notes' => []
+                ];
+            }
+
+            $groupedGrades[$subjectId]['totalSum'] += $gradeNumeric;
+            $groupedGrades[$subjectId]['count']++;
+            $groupedGrades[$subjectId]['notes'][] = $grade;
+        }
+
+        // Calcul des moyennes
+        foreach ($groupedGrades as &$subjectData) {
+            if ($subjectData['count'] > 0) {
+                $subjectData['average'] = round($subjectData['totalSum'] / $subjectData['count'], 2);
+            } else {
+                $subjectData['average'] = 0.0;
+            }
+            unset($subjectData['totalSum'], $subjectData['count']);
+        }
+
+        return array_values($groupedGrades);
+    }
 }

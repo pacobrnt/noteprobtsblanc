@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\PreviousPasswords;
-use App\Repository\GradeRepository;
 use App\Entity\Student;
 use App\Form\StudentType;
 use App\Repository\StudentRepository;
@@ -103,13 +102,16 @@ class StudentController extends AbstractController
         return $this->redirectToRoute('app_student_index', [], Response::HTTP_SEE_OTHER);
     }
 
+    // On n'a plus besoin du GradeRepository dans la signature si on utilise la méthode de l'entité
     #[Route('/{id}/notes', name: 'app_student_notes', methods: ['GET', 'POST'])]
-    public function notes(Student $student, GradeRepository $gradeRepository)
+// Notez l'absence de GradeRepository $gradeRepository dans la signature
+    public function notes(Student $student): Response
     {
-        $allGrades = $gradeRepository->findStudentGradesWithRelations($student);
-        $groupedGrades = $gradeRepository->getGroupedGradesWithAverages($allGrades);
+        // On appelle la nouvelle méthode directement sur l'objet étudiant
+        $groupedGrades = $student->getGroupedGradesWithAverages();
 
-        return $this->render('evaluation/index.html.twig', [
+        // On utilise le template que tu as identifié
+        return $this->render('student/mygrades.html.twig', [
             'grouped_grades' => $groupedGrades,
             'student' => $student,
         ]);
