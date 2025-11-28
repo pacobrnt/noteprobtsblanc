@@ -7,13 +7,14 @@
 
     <table class="table">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>Date</th>
-                <th>Label</th>
-                <th>Bareme</th>
-                <th>actions</th>
-            </tr>
+        <tr>
+            <th>Id</th>
+            <th>Date d'évaluation</th> {# Renommage pour plus de clarté #}
+            <th>Label</th>
+            <th>Barème</th>
+            <th>Date d'affichage notes</th> {# AJOUT DE LA NOUVELLE COLONNE #}
+            <th>actions</th>
+        </tr>
         </thead>
         <tbody>
         {% for evaluation in evaluations %}
@@ -22,6 +23,8 @@
                 <td>{{ evaluation.date ? evaluation.date|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ evaluation.label }}</td>
                 <td>{{ evaluation.bareme }}</td>
+                {# AFFICHAGE DU NOUVEAU CHAMP #}
+                <td>{{ evaluation.dateAffichageNotes ? evaluation.dateAffichageNotes|date('Y-m-d') : 'Non défini' }}</td>
                 <td>
                     <a href="{{ path('app_evaluation_show', {'id': evaluation.id}) }}">show</a>
                     <a href="{{ path('app_evaluation_edit', {'id': evaluation.id}) }}">edit</a>
@@ -29,7 +32,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="5">no records found</td>
+                <td colspan="6">no records found</td> {# Mise à jour du colspan #}
             </tr>
         {% endfor %}
         </tbody>

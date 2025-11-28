@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\PreviousPasswords;
+use App\Repository\GradeRepository;
 use App\Entity\Student;
 use App\Form\StudentType;
 use App\Repository\StudentRepository;
@@ -103,13 +104,14 @@ class StudentController extends AbstractController
     }
 
     #[Route('/{id}/notes', name: 'app_student_notes', methods: ['GET', 'POST'])]
-    public function notes(Student $student, EntityManagerInterface $entityManager): Response
+    public function notes(Student $student, GradeRepository $gradeRepository)
     {
+        $allGrades = $gradeRepository->findStudentGradesWithRelations($student);
+        $groupedGrades = $gradeRepository->getGroupedGradesWithAverages($allGrades);
 
-        return $this->render('student/mygrades.html.twig', [
+        return $this->render('evaluation/index.html.twig', [
+            'grouped_grades' => $groupedGrades,
             'student' => $student,
-            'grades' => $student->getGrades()
-
         ]);
     }
 }
